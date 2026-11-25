@@ -1,1 +1,1 @@
-Import source checked and ready. Use deterministic build-script migration before Gradle wrapper generation.
+Retry source import after replacing literal newline escapes with actual line separators.
