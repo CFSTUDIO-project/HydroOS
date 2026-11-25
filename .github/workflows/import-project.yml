@@ -38,17 +38,26 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           p = Path("app/build.gradle.kts")
-          s = p.read_text()
-          if 'kotlinOptions {' in s:
-              s = s.replace('plugins {\\n', 'import org.jetbrains.kotlin.gradle.dsl.JvmTarget\\n\\nplugins {\\n', 1)
-              s = s.replace('    kotlinOptions {\\n        jvmTarget = "17"\\n    }\\n\\n', '')
-              s = s.replace('\\ndependencies {\\n', '\\nkotlin {\\n    compilerOptions {\\n        jvmTarget = JvmTarget.fromTarget("17")\\n    }\\n}\\n\\ndependencies {\\n', 1)
-              p.write_text(s)
+          lines = p.read_text().splitlines()
+          for i, line in enumerate(lines):
+              if line.strip() == "kotlinOptions {":
+                  del lines[i:i + 3]
+                  break
+          insert_at = next(i for i, line in enumerate(lines) if line.strip() == "dependencies {")
+          lines[insert_at:insert_at] = [
+              "kotlin {",
+              "    compilerOptions {",
+              "        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget(\\"17\\")",
+              "    }",
+              "}",
+              "",
+          ]
+          p.write_text("import org.jetbrains.kotlin.gradle.dsl.JvmTarget\\n\\n" + "\\n".join(lines) + "\\n")
           p = Path("app/src/main/kotlin/com/cfstudio/hydrogenos/ui/HydrogenApp.kt")
           s = p.read_text()
-          if 'import androidx.compose.foundation.layout.size\\n' not in s:
-              s = s.replace('import androidx.compose.foundation.layout.padding\\n', 'import androidx.compose.foundation.layout.padding\\nimport androidx.compose.foundation.layout.size\\n')
-          s = s.replace('androidx.compose.ui.unit.sp(1.6)', '1.6.sp')
+          if "import androidx.compose.foundation.layout.size" not in s:
+              s = s.replace("import androidx.compose.foundation.layout.padding", "import androidx.compose.foundation.layout.padding\\nimport androidx.compose.foundation.layout.size")
+          s = s.replace("androidx.compose.ui.unit.sp(1.6)", "1.6.sp")
           p.write_text(s)
           PY
           rm -rf .seed /tmp/hydroos /tmp/HydrogenOS-V1-project.tar.gz
