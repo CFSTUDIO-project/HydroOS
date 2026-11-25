@@ -1,1 +1,1 @@
-Source archive verified. Retry import with Kotlin 2.4 compilerOptions migration and compile fixes.
+Import source checked and ready. Use deterministic build-script migration before Gradle wrapper generation.
