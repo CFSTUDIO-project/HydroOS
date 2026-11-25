@@ -47,18 +47,19 @@ jobs:
           lines[insert_at:insert_at] = [
               "kotlin {",
               "    compilerOptions {",
-              "        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget('17')",
+              '        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.fromTarget("17")',
               "    }",
               "}",
               "",
           ]
-          p.write_text("import org.jetbrains.kotlin.gradle.dsl.JvmTarget\\n\\n" + "\\n".join(lines) + "\\n")
+          lines = ["import org.jetbrains.kotlin.gradle.dsl.JvmTarget", ""] + lines
+          p.write_text(chr(10).join(lines) + chr(10))
           p = Path("app/src/main/kotlin/com/cfstudio/hydrogenos/ui/HydrogenApp.kt")
           lines = p.read_text().splitlines()
           if not any("import androidx.compose.foundation.layout.size" in line for line in lines):
               i = next(i for i, line in enumerate(lines) if "import androidx.compose.foundation.layout.padding" in line)
               lines.insert(i + 1, "import androidx.compose.foundation.layout.size")
-          s = "\\n".join(lines) + "\\n"
+          s = chr(10).join(lines) + chr(10)
           s = s.replace("androidx.compose.ui.unit.sp(1.6)", "1.6.sp")
           p.write_text(s)
           PY
