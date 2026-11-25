@@ -35,6 +35,22 @@ jobs:
           tar -xzf /tmp/HydrogenOS-V1-project.tar.gz -C /tmp/hydroos
           test -f /tmp/hydroos/hydroos_project/app/src/main/AndroidManifest.xml
           cp -a /tmp/hydroos/hydroos_project/. .
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("app/build.gradle.kts")
+          s = p.read_text()
+          if 'kotlinOptions {' in s:
+              s = s.replace('plugins {\\n', 'import org.jetbrains.kotlin.gradle.dsl.JvmTarget\\n\\nplugins {\\n', 1)
+              s = s.replace('    kotlinOptions {\\n        jvmTarget = "17"\\n    }\\n\\n', '')
+              s = s.replace('\\ndependencies {\\n', '\\nkotlin {\\n    compilerOptions {\\n        jvmTarget = JvmTarget.fromTarget("17")\\n    }\\n}\\n\\ndependencies {\\n', 1)
+              p.write_text(s)
+          p = Path("app/src/main/kotlin/com/cfstudio/hydrogenos/ui/HydrogenApp.kt")
+          s = p.read_text()
+          if 'import androidx.compose.foundation.layout.size\\n' not in s:
+              s = s.replace('import androidx.compose.foundation.layout.padding\\n', 'import androidx.compose.foundation.layout.padding\\nimport androidx.compose.foundation.layout.size\\n')
+          s = s.replace('androidx.compose.ui.unit.sp(1.6)', '1.6.sp')
+          p.write_text(s)
+          PY
           rm -rf .seed /tmp/hydroos /tmp/HydrogenOS-V1-project.tar.gz
           rm -f .github/workflows/import-project.yml
 
